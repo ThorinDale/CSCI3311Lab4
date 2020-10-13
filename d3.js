@@ -1,8 +1,8 @@
 
-const margin = ({top: 20, right: 20, bottom: 20, left: 20});
+const margin = ({top: 40, right: 40, bottom: 40, left: 40});
 
-const width = 1000 - margin.left - margin.right;
-const height = 1000 - margin.top - margin.bottom;
+const width = 700 - margin.left - margin.right;
+const height = 700 - margin.top - margin.bottom;
 const svg = d3.select('.chart')
                 .append('svg')
                 .attr('width', width + margin.left + margin.right)
@@ -14,7 +14,7 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
     console.log(data);
     const xScale = d3.scaleLinear()
                     .domain([0, d3.max(data, d=>d.Income)])
-                    .range([0, width]);
+                    .range([2, width+2]);
     // console.log(xScale(d3.max(data, d=>d.Income)));
 
     const yScale = d3.scaleLinear()
@@ -40,13 +40,25 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
 
     svg.append('g')
         .attr('class', 'axis x-axis')
-        .attr('transform', 'translate(0, ${height})')
+        .attr('transform', 'translate(0,' + (height) + ')')
         .call(xAxis);
 
     svg.append('g')
         .attr('class', 'axis y-axis')
-        .attr('transform', 'translate(${width}, 0)')
+        .attr('transform', 'translate(0, ${height})')
         .call(yAxis);
+
+    svg.append('text')
+        .attr('x', width - margin.right)
+        .attr('y', height + margin.top)
+        .text('Income');
+    console.log(height);
+
+    svg.append('text')
+        .attr('x', -30)
+        .attr('y', height/2 - margin.top)
+        .text('Life Expectancy')
+        .attr('writing-mode', 'vertical-lr');
 
 });
 
