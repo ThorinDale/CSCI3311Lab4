@@ -22,14 +22,20 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
                     .range([0, height]);
     // console.log(yScale(d3.max(data, d=>d.LifeExpectancy)));
 
+    const color = d3.scaleOrdinal().domain(data)
+                    .range(d3.schemeTableau10);
+    const population = d3.scaleSqrt()
+                        .domain([0, d3.max(data, d=>d.Population)])
+                        .range([0, 20]);
+
     svg.selectAll('circle')
         .data(data)
         .enter()
         .append('circle')
         .attr('cx', d=>xScale(d.Income))
         .attr('cy', d=>yScale(d.LifeExpectancy))
-        .attr('r', '4px')
-        .attr('fill', 'blue');
+        .attr('r', d=>population(d.Population))
+        .attr('fill', d=>color(d.Region));
 
     const xAxis = d3.axisBottom()
                     .scale(xScale)
@@ -52,14 +58,11 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
         .attr('x', width - margin.right)
         .attr('y', height + margin.top)
         .text('Income');
-    console.log(height);
 
     svg.append('text')
         .attr('x', -30)
         .attr('y', height/2 - margin.top)
         .text('Life Expectancy')
         .attr('writing-mode', 'vertical-lr');
-
+    
 });
-
-
