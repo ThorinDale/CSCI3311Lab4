@@ -11,7 +11,7 @@ const svg = d3.select('.chart')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
-    console.log(data);
+    // console.log(data);
     const xScale = d3.scaleLinear()
                     .domain([0, d3.max(data, d=>d.Income)])
                     .range([2, width+2]);
@@ -35,7 +35,35 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
         .attr('cx', d=>xScale(d.Income))
         .attr('cy', d=>yScale(d.LifeExpectancy))
         .attr('r', d=>population(d.Population))
-        .attr('fill', d=>color(d.Region));
+        .attr('fill', d=>color(d.Region))
+        .on('mouseenter', function(event, d) {
+            let country = d.Country;
+            let region = d.Region;
+            let population = d3.format(',.2r')(d.Population);
+            let income = d3.format(',.2r')(d.Income);
+            let lifeExpectancy = d3.format('.0f')(d.LifeExpectancy);
+
+            const pos = d3.pointer(event, window);
+            d3.select('.tooltip')
+                .style('left', pos[0]+'px')
+                .style('top', pos[1]+'px')
+                .style('position', 'fixed')
+                .style('display', 'block')
+                .style('color', 'white')
+                .style('background-color', 'black')
+                .style('padding', '10px')
+                .html(
+                    'Country: ' + country + '<br/>' +
+                    'Region: ' + region + '<br/>' +
+                    'Population: ' + population + '<br/>' +
+                    'Income: ' + income + '<br/>' +
+                    'Life Expectancy: ' + lifeExpectancy
+                );
+        })
+        .on('mouseleave', function(event, d) {
+            d3.select('.tooltip')
+                .style('display', 'none');
+        });
 
     const xAxis = d3.axisBottom()
                     .scale(xScale)
@@ -43,6 +71,7 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
 
     const yAxis = d3.axisLeft()
                     .scale(yScale);
+                    // .ticks(50, 's');
 
     svg.append('g')
         .attr('class', 'axis x-axis')
@@ -64,5 +93,27 @@ d3.csv('wealth-health-2014.csv', d3.autoType).then(data=>{
         .attr('y', height/2 - margin.top)
         .text('Life Expectancy')
         .attr('writing-mode', 'vertical-lr');
-    
+        
+    var legend = svg.selectAll('.legend')
+        .data(color.domain())
+        .enter()
+        .append('g')
+        .attr('transform', function(d, i) {
+            return 'translate(' + '-200,' + i*20 + ')';
+        });
+    legend.append('rect')
+        .attr('x', width + 10)
+        .attr('width', 12)
+        .attr('height', 12)
+        .attr('y', height - 150)
+        .style('fill', color);
+
+    legend.append('text')
+        .attr('x', width + 26)
+        .attr('dy', '.65em')
+        .attr('y', height - 150)
+        .text(function(d) {
+            console.log(d);
+            return d;
+        });
 });
